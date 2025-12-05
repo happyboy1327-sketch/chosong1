@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 8080;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const ZIP_PATH = './dict.zip';
+const ZIP_PATH = path.join(__dirname, 'dict.zip');
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
