@@ -220,11 +220,20 @@ app.get("/api/search", async (req, res) => {
                 for (const raw of items) {
                   const wordRaw = raw?.word_info?.word;
                   if (!wordRaw) continue;
+                  const cleanWord = wordRaw.replace(/\(([^)]*)\)/g, (match, content) => {
+                    // 괄호 안에 '을', '를', '이', '가' 등 조사가 포함되어 있을 경우 
+                    // 괄호를 제거하고 내용만 남김 (예: (을) -> 을)
+                  if (content.length <= 2 && content.match(/^(을|를|이|가|와|과|은|는|도|만)$/)) {
+                      return content;
+                    }
+                    return ''; // 그 외 괄호는 모두 제거
+                  }).trim();
+                  // 🚨 수정 끝
                   
                   if (wordRaw.toLowerCase().includes(word.toLowerCase())) {
                     const hint = extractHint(raw.word_info?.pos_info, raw.word_info);
                     results.push({
-                      word: wordRaw,
+                      word: cleanWord,
                       hint: hint || "정의 없음"
                     });
                   }
@@ -399,14 +408,20 @@ function loadDictionary(limit = 7) {
                 for (const raw of items) {
                   const wordRaw = raw?.word_info?.word;
                   if (!wordRaw) continue;
+                  const cleanWord = wordRaw.replace(/\(([^)]*)\)/g, (match, content) => {
+                    if (content.length <= 2 && content.match(/^(을|를|이|가|와|과|은|는|도|만)$/)) {
+                      return content;
+                    }
+                    return '';
+                  }).trim();
 
                   const unit = raw.word_info?.word_unit;
                   const type = raw.word_info?.word_type;
                   const hint = extractHint(raw.word_info?.pos_info, raw.word_info);
 
-                  if (!isGoodWord(wordRaw, hint, unit, type)) continue;
+                  if (!isGoodWord(cleanWord, hint, unit, type)) continue;
 
-                  const cho = getChosung(wordRaw);
+                  const cho = getChosung(cleanWord);
                   if (!cho) continue;
 
                   const choKey = cho.join("");
@@ -416,7 +431,7 @@ function loadDictionary(limit = 7) {
                   }
 
                   choGroups.get(choKey).push({
-                    word: wordRaw,
+                    word: cleanWord,
                     question: cho,
                     hint: hint || "정의 없음",
                   });
