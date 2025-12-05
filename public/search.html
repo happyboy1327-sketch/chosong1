@@ -377,7 +377,7 @@
 
         async function addToQuiz(word, hint) {
             try {
-                const response = await fetch(`http://localhost:8080/api/add-word?word=${encodeURIComponent(word)}&hint=${encodeURIComponent(hint)}`);
+                const response = await fetch(`/api/add-word?word=${encodeURIComponent(word)}&hint=${encodeURIComponent(hint)}`);
                 const result = await response.json();
                 alert(result.message);
             } catch (error) {
